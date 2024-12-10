@@ -1,19 +1,54 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Menu, ChevronDown, User } from 'lucide-react';
 import { Menu as HeadlessMenu, Transition } from '@headlessui/react';
+import { Category } from '../types';
 import { useStore } from '../store/useStore';
 
-const categories = [
-  { id: 1, nombre: 'Electronics' },
-  { id: 2, nombre: 'Clothing' },
-  { id: 3, nombre: 'Books' },
-  { id: 4, nombre: 'Home & Garden' },
-];
+// const categories = [
+//   { id: 1, nombre: 'Electronics' },
+//   { id: 2, nombre: 'Clothing' },
+//   { id: 3, nombre: 'Books' },
+//   { id: 4, nombre: 'Home & Garden' },
+// ];
 
 export const Navbar = () => {
   const cart = useStore((state) => state.cart);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Llamar a la API para obtener las categorías
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/categorias'); // Ajusta la URL según tu configuración
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (error: any) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  if (loading) {
+    return <p className="text-center text-gray-600">Loading categories...</p>;
+  }
+
+  if (error) {
+    return <p className="text-center text-red-500">Error: {error}</p>;
+  }
+
 
   return (
     <nav className="bg-white shadow-lg">
@@ -53,7 +88,7 @@ export const Navbar = () => {
                       <HeadlessMenu.Item key={category.id}>
                         {({ active }) => (
                           <Link
-                            to={`/products?category=${category.id}`}
+                            to={`/categories/${category.id}`}
                             className={`${
                               active ? 'bg-blue-500 text-white' : 'text-gray-900'
                             } group flex rounded-md items-center w-full px-2 py-2 text-sm`}

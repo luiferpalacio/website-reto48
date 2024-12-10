@@ -1,15 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Category } from '../types';
 import { Link } from 'react-router-dom';
 
 export const Categories = () => {
-  // Example categories data - in a real app, this would come from an API
-  const categories: Category[] = [
-    { id: 1, nombre: 'Electronics' },
-    { id: 2, nombre: 'Clothing' },
-    { id: 3, nombre: 'Books' },
-    { id: 4, nombre: 'Home & Garden' },
-  ];
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Llamar a la API para obtener las categorías
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/categorias'); // Ajusta la URL según tu configuración
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (error: any) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  if (loading) {
+    return <p className="text-center text-gray-600">Loading categories...</p>;
+  }
+
+  if (error) {
+    return <p className="text-center text-red-500">Error: {error}</p>;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

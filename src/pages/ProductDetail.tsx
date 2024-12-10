@@ -16,7 +16,7 @@ export const ProductDetail = () => {
     // Llamar a la API para obtener los detalles del producto
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/products/${id}`);
+        const response = await fetch(`http://localhost:8000/api/productos/${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch product details');
         }

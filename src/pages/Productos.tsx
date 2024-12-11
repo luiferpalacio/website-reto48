@@ -13,8 +13,6 @@ export const Productos = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const selectedCategories = React.useMemo(() => {
     return searchParams.get('categories')?.split(',').map(Number) || [];
   }, [searchParams]);
@@ -29,13 +27,7 @@ export const Productos = () => {
         }
         const data = await response.json();
         console.log({ data });
-        setProducts((prevProducts) => {
-          const newProducts = data.filter(
-            (newProduct: Product) => !prevProducts.some((prevProduct) => prevProduct.id === newProduct.id)
-          );
-          return [...prevProducts, ...newProducts];
-        });
-        setHasMore(data.next_page_url !== null);
+        setProducts(data); // Asegúrate de que data.data contiene los productos
       } catch (error: unknown) {
         if (error instanceof Error) {
           setError(error.message);
@@ -48,7 +40,7 @@ export const Productos = () => {
     };
 
     fetchProducts();
-  }, [page]);
+  }, []);
 
   const handleCategoryChange = (categoryId: number) => {
     let newSelectedCategories: number[];
@@ -69,24 +61,9 @@ export const Productos = () => {
   const filteredProducts = React.useMemo(() => {
     if (selectedCategories.length === 0) return products;
     return products.filter(product =>
-      selectedCategories.includes(product.Categoria_id)
+      selectedCategories.includes(product.categoria_id)
     );
   }, [selectedCategories, products]);
-
-  const handleScroll = React.useCallback(() => {
-    const scrollHeight = document.documentElement.scrollHeight;
-    const scrollTop = document.documentElement.scrollTop;
-    const clientHeight = document.documentElement.clientHeight;
-
-    if (scrollTop + clientHeight >= scrollHeight && hasMore) {
-      setPage(page => page + 1);
-    }
-  }, [hasMore]);
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
 
   if (loading) {
     return (

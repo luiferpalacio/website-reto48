@@ -29,5 +29,5 @@ export interface Venta {
   tipo: 'COMPRA' | 'VENTA'; // enum ('COMPRA', 'VENTA')
   created_at: string | null; // timestamp, formato ISO 8601
   updated_at: string | null; // timestamp, formato ISO 8601
-  deleted_at: string | null; //
-   }
+  deleted_at: string | null; // timestamp, formato ISO 8601, puede ser null
+}

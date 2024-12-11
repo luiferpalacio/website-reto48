@@ -40,6 +40,9 @@ export const Navbar = () => {
     return <p className="text-center text-red-500">Error: {error}</p>;
   }
 
+
+
+
   return (
     <nav className="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -147,6 +150,8 @@ export const Navbar = () => {
                 </span>
               )}
             </Link>
+
+            {/* <Link to="/ventas/predicciones" className="text-gray-600 hover:text-gray-900 relative">Predicción de Ventas</Link> */}
           </div>
 
           <div className="md:hidden flex items-center space-x-4">

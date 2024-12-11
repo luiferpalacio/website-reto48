@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
 import * as yup from 'yup';
+import { toast } from 'react-hot-toast';
 
 const loginSchema = yup.object().shape({
   email: yup.string().email('Correo electrónico inválido').required('El correo electrónico es obligatorio'),
@@ -15,6 +17,8 @@ type LoginFormData = {
 };
 
 export const Login = () => {
+  const navigate = useNavigate(); // Hook para redireccionar
+
   const {
     register,
     handleSubmit,
@@ -25,23 +29,26 @@ export const Login = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await axios.post('http://localhost:8000/login', data, {
+      const response = await axios.post('http://localhost:8000/api/login', data, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      // Manejar el token recibido
-      const { access_token } = response.data;
-      localStorage.setItem('authToken', access_token);
-      alert('Inicio de sesión exitoso');
-    } catch (error: any) {
-      // Manejar errores
-      if (error.response) {
-        alert(error.response.data.message || 'Error al iniciar sesión');
-      } else {
-        alert('Error de red');
+      const { original } = response.data;
+      const { user, message } = original;
+     
+      if (message !== "OK") throw new Error(message);
+
+      if (user) {
+        localStorage.setItem('user', user);
+        
+        // Redirigir a la página de inicio
+        navigate('/productos');
       }
+      
+    } catch (error: unknown) {
+      toast.error('Error: ' + (error instanceof Error ? error.message : 'Algo salió mal'));
     }
   };
 

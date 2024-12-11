@@ -22,7 +22,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <Link to={`/productos/${product.id}`} className="group">
       <div className="w-62 bg-white rounded-lg shadow-md overflow-hidden transition-shadow hover:shadow-lg">
         <img
-          src={product.library?.images?.[0]}
+          src={product.library?.images?.[0] ?? 'https://via.placeholder.com/400'}
           alt={product.nombre}
           className="w-full h-48 object-cover group-hover:opacity-90 transition-opacity"
         />

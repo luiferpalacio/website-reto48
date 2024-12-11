@@ -100,10 +100,10 @@ export const Productos = () => {
               <PrediccionVentas />
             </ErrorBoundary>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Our Products</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">Nuestros productos</h1>
           {filteredProducts.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No products found for the selected categories.</p>
+              <p className="text-gray-500 text-lg">No se encontró ese producto seleccione otra categoria</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

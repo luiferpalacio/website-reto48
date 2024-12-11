@@ -15,7 +15,7 @@ export const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <h1 className="text-xl font-bold text-gray-800">SUCommerce</h1>
+            <img src="/logo-.PNG" alt="Logo" className="w-24 h-auto" /> 
             </Link>
           </div>
           <SearchBar />

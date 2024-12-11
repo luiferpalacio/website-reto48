@@ -10,7 +10,9 @@ export const SearchBar = () => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(`/productos?search=${encodeURIComponent(searchTerm.trim())}`);
-      setSearchTerm('');
+      setSearchTerm(''); // Limpia el campo de búsqueda
+    } else {
+      console.log('Campo de búsqueda vacío'); // Depuración adicional
     }
   };
 

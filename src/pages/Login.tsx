@@ -1,6 +1,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import axios from 'axios';
 import * as yup from 'yup';
 
 const loginSchema = yup.object().shape({
@@ -22,9 +23,26 @@ export const Login = () => {
     resolver: yupResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    // Aquí manejarías la autenticación del usuario
-    console.log('Formulario enviado', data);
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const response = await axios.post('http://localhost:8000/login', data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      // Manejar el token recibido
+      const { access_token } = response.data;
+      localStorage.setItem('authToken', access_token);
+      alert('Inicio de sesión exitoso');
+    } catch (error: any) {
+      // Manejar errores
+      if (error.response) {
+        alert(error.response.data.message || 'Error al iniciar sesión');
+      } else {
+        alert('Error de red');
+      }
+    }
   };
 
   return (
@@ -65,7 +83,10 @@ export const Login = () => {
           </div>
 
           <div className="text-center text-sm text-gray-600">
-            ¿No tienes una cuenta? <a href="/registro" className="text-blue-600 hover:underline">Regístrate</a>
+            ¿No tienes una cuenta?{' '}
+            <a href="/registro" className="text-blue-600 hover:underline">
+              Regístrate
+            </a>
           </div>
         </form>
       </div>

@@ -8,6 +8,7 @@ import { Categories } from './pages/Categories';
 import { Cart } from './pages/Cart';
 import { ProductDetail } from './pages/ProductDetail';
 import { SellProduct } from './pages/SellProduct';
+import PrediccionVentas from './components/PrediccionVentas';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/categories/:id" element={<Categories />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/sell" element={<SellProduct />} />
+          <Route path="/ventas/predicciones" element={<PrediccionVentas />} />
         </Routes>
         <Toaster position="bottom-right" />
       </div>

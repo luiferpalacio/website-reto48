@@ -154,6 +154,8 @@ export const Navbar = () => {
                 </span>
               )}
             </Link>
+
+            {/* <Link to="/ventas/predicciones" className="text-gray-600 hover:text-gray-900 relative">Predicción de Ventas</Link> */}
           </div>
 
           <div className="md:hidden flex items-center">

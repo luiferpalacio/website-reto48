@@ -1,52 +1,32 @@
-import React from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { type RegisterFormData, TipoDocumento } from '../types/auth';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 const registerSchema = yup.object().shape({
-  name: yup.string().min(2, 'El nombre debe tener al menos 2 caracteres').required('El nombre es obligatorio'),
-  email: yup.string().email('Correo electrónico inválido').required('El correo electrónico es obligatorio'),
-  password: yup.string().min(6, 'La contraseña debe tener al menos 6 caracteres').required('La contraseña es obligatoria'),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref('password'), null], 'Las contraseñas no coinciden')
-    .required('La confirmación de la contraseña es obligatoria'),
-  documentoComprador: yup
-    .number()
-    .typeError('El documento debe ser un número')
-    .required('El documento es obligatorio'),
-  tipoDocumento: yup
-    .string()
-    .oneOf(['CC', 'CE', 'NIT', 'PAS', 'OTRO'], 'Selecciona un tipo de documento válido')
-    .required('El tipo de documento es obligatorio'),
-  nombreComprador: yup.string().required('El nombre del comprador es obligatorio'),
-  apellidoComprador: yup.string().required('El apellido del comprador es obligatorio'),
-  celularComprador: yup
-    .string()
-    .matches(/^[0-9]{10}$/, 'El celular debe tener 10 dígitos')
-    .required('El celular es obligatorio'),
-  direccionComprador: yup.string().required('La dirección es obligatoria'),
+  name: yup.string().required('El nombre es obligatorio'),
+  email: yup.string().email('Correo no valido').required('El correo electrónico es obligatorio'),
+  password: yup.string().min(8, 'La contraseña debe tener minimo 8 caracteres').required('La contraseña es obligatoria'),
+  confirmPassword: yup.string().oneOf([yup.ref('password'), undefined], 'Las contraseñas no coinciden').required('La confirmación de la contraseña es obligatoria'),
+  tipoDocumento: yup.mixed<TipoDocumento>().oneOf(Object.values(TipoDocumento), 'Seleccione un tipo de documento').required('El tipo de documento es obligatorio'),
+  documentoComprador: yup.number().typeError('El documento del comprador debe ser un numero').required('El documento es obligatorio'),
+  celularComprador: yup.string().length(10, 'El celular debe tener 10 numeros').required('El celular es obligatorio'),
+  // direccionComprador: yup.string().required('La dirección es obligatoria'),
 });
 
-type RegisterFormData = {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  documentoComprador: number;
-  tipoDocumento: 'CC' | 'CE' | 'NIT' | 'PAS' | 'OTRO';
-  nombreComprador: string;
-  apellidoComprador: string;
-  celularComprador: string;
-  direccionComprador: string;
-};
+const documentTypes = [
+  { value: 'CC', label: 'Cédula de Ciudadanía' },
+  { value: 'CE', label: 'Cédula de Extranjería' },
+  { value: 'NIT', label: 'NIT' },
+  { value: 'PAS', label: 'Pasaporte' },
+  { value: 'OTRO', label: 'Otro' },
+];
 
 export const Registro = () => {
   const navigate = useNavigate();
-
   const {
     register,
     handleSubmit,
@@ -56,14 +36,8 @@ export const Registro = () => {
   });
 
   const onSubmit = async (data: RegisterFormData) => {
-    alert('Datos enviados: ' + JSON.stringify(data, null, 2));
     try {
-      const response = await axios.post('http://localhost:8000/api/clientes', data, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
+      const response = await axios.post('http://localhost:8000/api/clientes', data);
       const { original } = response.data;
       const { user, message } = original;
 
@@ -71,131 +45,122 @@ export const Registro = () => {
 
       if (user) {
         localStorage.setItem('user', user);
-
-        // Redirigir a la página de inicio
         navigate('/productos');
+        toast.success('Registro exitoso');
       }
-
-    }
-    catch (error: unknown) {
+    } catch (error: unknown) {
       toast.error('Error: ' + (error instanceof Error ? error.message : 'Algo salió mal'));
     }
-
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100">
+    <div className="p-12 min-h-screen flex justify-center items-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Crear Cuenta</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Campos existentes */}
           <div>
-            <label htmlFor="name" className="block text-sm font-semibold text-gray-700">
+            <label htmlFor='name' className='block text-sm font-semibold text-gray-700'>
               Nombre Completo
             </label>
             <input
-              type="text"
-              id="name"
+              type='text'
+              id='name'
               {...register('name')}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className='w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
             />
-            {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+            {errors.name && <p className='text-red-500 text-sm'>{errors.name.message}</p>}
           </div>
 
-          {/* Nuevos campos */}
           <div>
-            <label htmlFor="documentoComprador" className="block text-sm font-semibold text-gray-700">
-              Documento
+            <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
+              Correo Electrónico
             </label>
             <input
-              type="number"
-              id="documentoComprador"
-              {...register('documentoComprador')}
+              type="email"
+              id="email"
+              {...register('email')}
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.documentoComprador && (
-              <p className="text-red-500 text-sm">{errors.documentoComprador.message}</p>
-            )}
+            {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
           </div>
 
           <div>
-            <label htmlFor="tipoDocumento" className="block text-sm font-semibold text-gray-700">
+            <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              id="password"
+              {...register('password')}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700">
+              Confirmar Contraseña
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              {...register('confirmPassword')}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>}
+          </div>
+
+          <div>
+            <label htmlFor='tipoDocumento' className='block text-sm font-semibold text-gray-700'>
               Tipo de Documento
             </label>
             <select
-              id="tipoDocumento"
+              id='tipoDocumento'
               {...register('tipoDocumento')}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className='w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
             >
-              <option value="">Seleccione</option>
-              <option value="CC">CC</option>
-              <option value="CE">CE</option>
-              <option value="NIT">NIT</option>
-              <option value="PAS">PAS</option>
-              <option value="OTRO">OTRO</option>
+              <option value=''>Seleccione</option>
+              {documentTypes.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
-            {errors.tipoDocumento && <p className="text-red-500 text-sm">{errors.tipoDocumento.message}</p>}
+            {errors.tipoDocumento && <p className='text-red-500 text-sm'>{errors.tipoDocumento.message}</p>}
           </div>
 
           <div>
-            <label htmlFor="nombreComprador" className="block text-sm font-semibold text-gray-700">
-              Nombre del Comprador
+            <label htmlFor='documentoComprador' className='block text-sm font-semibold text-gray-700'>
+              Documento
             </label>
             <input
-              type="text"
-              id="nombreComprador"
-              {...register('nombreComprador')}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              type='number'
+              id='documentoComprador'
+              {...register('documentoComprador')}
+              className='w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
             />
-            {errors.nombreComprador && <p className="text-red-500 text-sm">{errors.nombreComprador.message}</p>}
+            {errors.documentoComprador && <p className='text-red-500 text-sm'>{errors.documentoComprador.message}</p>}
           </div>
 
           <div>
-            <label htmlFor="apellidoComprador" className="block text-sm font-semibold text-gray-700">
-              Apellido del Comprador
-            </label>
-            <input
-              type="text"
-              id="apellidoComprador"
-              {...register('apellidoComprador')}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.apellidoComprador && <p className="text-red-500 text-sm">{errors.apellidoComprador.message}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="celularComprador" className="block text-sm font-semibold text-gray-700">
+            <label htmlFor='celularComprador' className='block text-sm font-semibold text-gray-700'>
               Celular del Comprador
             </label>
             <input
-              type="text"
-              id="celularComprador"
+              type='number'
+              id='celularComprador'
               {...register('celularComprador')}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className='w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
             />
-            {errors.celularComprador && <p className="text-red-500 text-sm">{errors.celularComprador.message}</p>}
+            {errors.celularComprador && <p className='text-red-500 text-sm'>{errors.celularComprador.message}</p>}
           </div>
 
-          <div>
-            <label htmlFor="direccionComprador" className="block text-sm font-semibold text-gray-700">
-              Dirección del Comprador
-            </label>
-            <textarea
-              id="direccionComprador"
-              {...register('direccionComprador')}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            ></textarea>
-            {errors.direccionComprador && <p className="text-red-500 text-sm">{errors.direccionComprador.message}</p>}
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-            >
-              Registrarse
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+          >
+            Crear Cuenta
+          </button>
 
           <div className="text-center text-sm text-gray-600">
             ¿Ya tienes una cuenta?{' '}
